@@ -1,0 +1,15 @@
+extends ../../layout/default.pug
+
+block main
+  if (product.title)
+    h1(class="mb-4") Tiêu đề: #{product.title}
+
+  if (product.description)
+    div(class="mb-4") Mô tả ngắn: <b>#{product.description}</b>
+
+  a(
+    href=`${prefixAdmin}/roles/edit/${product.id}`
+    class="btn btn-warning"
+  ) Chỉnh sửa
+
+  script(src="/admin/js/role.js")
