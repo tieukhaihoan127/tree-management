@@ -1,69 +1,79 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
+include ../../mixins/pagination.pug
+include ../../mixins/form-change-multi.pug
+include ../../mixins/alert.pug
 
 block main
   if(role.permissions.includes("accounts_view"))
+    +alert-success("5000")
+
     h1(class="mb-4") Danh sách tài khoản
+
+    .card.mb-3 
+        .card-header Bộ lọc và tìm kiếm
+        .card-body 
+          .row 
+              .col-6
+                  +filter-status(filterStatus)
+              .col-6 
+                  +search(keyword)
 
     .card.mb-3
       .card-header Danh sách
       .card-body
         .row
           .col-8
-          .col-4.text-right
-            a(
-              href=`${prefixAdmin}/accounts/create`
-              class="btn btn-outline-success"
-            ) + Thêm mới
+            +form-change-multi(`${prefixAdmin}/accounts/change-multi?_method=PATCH`)
+          .col-4
+            if(role.permissions.includes("accounts_create"))
+              .text-right
+                a(href=`${prefixAdmin}/accounts/create` class="btn btn-outline-success") + Thêm mới
 
-        table(
-          class="table table-hover table-sm"
-        )
-          thead
-            tr
-              th STT
-              th Avatar
-              th Họ tên
-              th Phân quyền
-              th Email
-              th Trạng thái
-              th Hành động
+    table(class="table table-hover table-sm product" checkbox-multi)
+      thead
+          tr
+            th
+              input(type="checkbox" name="checkall")
+            th STT
+            th Avatar
+            th Họ tên
+            th Phân quyền
+            th Email
+            th Trạng thái
+            th Hành động
 
-          tbody
-            each item, index in records
-              tr 
-                td #{index+1}
-                td
-                  img(
-                    src=item.avatar
-                    alt=item.fullName
-                    width="100px"
-                    height="auto"
-                  )
-                td #{item.fullName}
-                td #{item.role.title}
-                td #{item.email}
-                td
-                  if (item.status === "active")
-                    a(
-                      href="javascript:;"
-                      class="badge badge-success"
-                      data-status="active"
-                    ) Hoạt động
-                  else
-                    a(
-                      href="javascript:;"
-                      class="badge badge-danger"
-                      data-status="inactive"
-                    ) Dừng hoạt động
-                td
-                  a(
-                    class="btn btn-secondary btn-sm"
-                    href=`${prefixAdmin}/accounts/detail/${item.id}`
-                  ) Chi tiết
-                  a(
-                    class="btn btn-warning btn-sm ml-1"
-                    href=`${prefixAdmin}/accounts/edit/${item.id}`
-                  ) Sửa
-                  button(
-                    class="btn btn-danger btn-sm ml-1"
-                  ) Xóa
+      tbody
+          each item, index in records
+            tr 
+              td 
+                input(type="checkbox" name="id" value=item.id)
+              td #{index+1}
+              td
+                img(
+                  src=item.avatar
+                  alt=item.fullName
+                  width="100px"
+                  height="auto"
+                )
+              td #{item.fullName}
+              td #{item.role.title}
+              td #{item.email}
+              td
+                if (item.status === "active")
+                  a(href="javascript:;" class="badge badge-success" data-status=item.status data-id=item.id button-change-status) Hoạt động
+                else
+                  a(href="javascript:;" class="badge badge-danger" data-status=item.status data-id=item.id button-change-status) Dừng hoạt động
+              td
+                a(class="btn btn-secondary btn-sm" href=`${prefixAdmin}/accounts/detail/${item.id}`) Chi tiết
+                if(role.permissions.includes("accounts_edit"))
+                  a(class="btn btn-warning btn-sm ml-1" href=`${prefixAdmin}/accounts/edit/${item.id}`) Sửa
+                if(role.permissions.includes("accounts_delete"))
+                  button(class="btn btn-danger btn-sm ml-1" button-delete data-id=item.id) Xóa
+    +pagination(pagination)
+
+    form(action="" method="POST" id="form-change-status" data-path=`${prefixAdmin}/accounts/change-status`)
+    form(action="" method="POST" id="form-delete-item" data-path=`${prefixAdmin}/accounts/delete`) 
+
+    script(src="/admin/js/product.js")

@@ -1,18 +1,42 @@
-const Role = require("../../model/role.model");
+const Role = require("../../models/role.model");
 
 const systemConfig = require("../../config/system");
+const paginationHelper = require("../../helpers/pagination");
+const searchHelper = require("../../helpers/search");
 
 // [GET] /admin/roles
 module.exports.index = async (req, res) => {
+
   let find = {
     deleted: false,
   };
 
-  const records = await Role.find(find);
+  const objectSearch = searchHelper(req.query);
+
+  if(objectSearch.regex){
+    find.title = objectSearch.regex;
+  }
+
+  // Pagination
+  const countProducts = await Role.countDocuments(find);
+
+  let objectPagination = paginationHelper(
+    {
+    currentPage: 1,
+    limitItems: 4
+    },
+    req.query,  
+    countProducts
+  );
+  // End Pagination
+
+  const records = await Role.find(find).limit(objectPagination.limitItems).skip(objectPagination.skip);
 
   res.render("admin/pages/roles/index", {
     pageTitle: "Nhóm quyền",
     records: records,
+    keyword: objectSearch.keyword,
+    pagination: objectPagination
   });
 };
 

@@ -1,4 +1,4 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 include ../../mixins/alert.pug
 include ../../mixins/select-tree.pug
 
@@ -93,7 +93,7 @@ block main
         )
         label(for="statusInActive" class="form-check-label") Dừng hoạt động
       div(class="form-group")
-        button(
-          type="submit"
-          class="btn btn-primary"
-        ) Cập nhật
+        button(type="submit" class="btn btn-success") Cập nhật
+        a(href=`${prefixAdmin}/products-category` class="btn btn-primary ml-2") Trở về
+  else 
+    h1 Bạn không có quyền truy cập 

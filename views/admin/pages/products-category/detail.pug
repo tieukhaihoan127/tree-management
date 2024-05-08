@@ -1,4 +1,4 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 include ../../mixins/select-tree.pug
 
 block main
@@ -27,9 +27,7 @@ block main
   if (product.description)
     div(class="mb-4") !{product.description}
 
-  a(
-    href=`${prefixAdmin}/products-category/edit/${product.id}`
-    class="btn btn-warning"
-  ) Chỉnh sửa
+  a(href=`${prefixAdmin}/products-category` class="btn btn-primary mr-2") Xác nhận
+  a(href=`${prefixAdmin}/products-category/edit/${product.id}` class="btn btn-warning") Chỉnh sửa
 
   script(src="/admin/js/product.js")

@@ -104,3 +104,11 @@
   display: none;
 }
 /* End Image Preview */
+
+.product thead th {
+  text-align: center;
+}
+
+.product td {
+  text-align: center;
+}

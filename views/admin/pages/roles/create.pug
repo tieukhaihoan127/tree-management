@@ -1,4 +1,4 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 
 block main
   if(role.permissions.includes("roles_create"))
@@ -30,3 +30,5 @@ block main
           type="submit"
           class="btn btn-primary"
         ) Tạo mới
+  else 
+    h1 Bạn không có quyền truy cập

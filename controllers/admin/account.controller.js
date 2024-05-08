@@ -1,17 +1,42 @@
 const md5 = require("md5");
-const Account = require("../../model/account.model");
-const Role = require("../../model/role.model");
+const Account = require("../../models/account.model");
+const Role = require("../../models/role.model");
 
 const systemConfig = require("../../config/system");
+const filterStatusHelper = require("../../helpers/filterStatus");
+const searchHelper = require("../../helpers/search");
+const paginationHelper = require("../../helpers/pagination");
 
 // [GET] /admin/accounts
 module.exports.index = async (req, res) => {
+  const filterStatus = filterStatusHelper(req.query);
+
   let find = {
     deleted: false,
   };
 
-  const records = await Account.find(find).select("-password -token");
+  if(req.query.status){
+    find.status = req.query.status;
+  }
 
+  const objectSearch = searchHelper(req.query);
+
+  if(objectSearch.regex){
+    find.fullName = objectSearch.regex;
+  }
+
+  const countProducts = await Account.countDocuments(find);
+  let objectPagination = paginationHelper(
+    {
+      currentPage: 1,
+      limitItems: 4
+    },
+    req.query,
+    countProducts
+  );
+
+
+  const records = await Account.find(find).select("-password -token").limit(objectPagination.limitItems).skip(objectPagination.skip);
   for (const record of records) {
     const role = await Role.findOne({
       _id: record.role_id,
@@ -23,8 +48,60 @@ module.exports.index = async (req, res) => {
   res.render("admin/pages/accounts/index", {
     pageTitle: "Danh sách tài khoản",
     records: records,
+    filterStatus: filterStatus,
+    keyword: objectSearch.keyword,
+    pagination: objectPagination
   });
 };
+
+// [PATCH] /admin/accounts/change-status/:status/:id
+module.exports.changeStatus = async (req,res) => {
+  const status = req.params.status;
+  const id = req.params.id;
+  
+  await Account.updateOne({ _id: id}, {status: status});
+  req.flash("success","Cập nhật trạng thái thành công!");
+  res.redirect("back");
+}
+
+// [PATCH] /admin/accounts/change-multi
+module.exports.changeMulti = async (req,res) => {
+  const type = req.body.type;
+  const ids = req.body.ids.split(", ");
+  switch (type) {
+    case "active":
+      await Account.updateMany( {_id: { $in: ids} }, { status: "active" });
+      req.flash("success", `Cập nhật trạng thái thành công ${ids.length} sản phẩm!`);
+      break;
+    case "inactive":
+      await Account.updateMany( {_id: { $in: ids} }, { status: "inactive" });
+      req.flash("success", `Cập nhật trạng thái thành công ${ids.length} sản phẩm!`);
+      break;
+    case "delete-all":
+      await Account.updateMany( {_id: { $in: ids} }, { 
+        deleted: true,
+        deletedAt: new Date(),
+       });
+       req.flash("success", `Đã xóa thành công ${ids.length} sản phẩm!`);
+      break;
+    default:
+      break;
+  }
+  res.redirect("back");
+}
+
+
+// [DELETE] /admin/products/delete/:id
+module.exports.deleteItem = async (req,res) => {
+  const id = req.params.id;
+
+  await Account.updateOne({ _id: id }, { 
+    deleted: true,
+    deletedAt: new Date()
+  });
+  req.flash("success", `Đã xóa thành công sản phẩm!`);
+  res.redirect("back");
+}
 
 // [GET] /admin/accounts/create
 module.exports.create = async (req, res) => {
@@ -108,3 +185,29 @@ module.exports.edit = async (req, res) => {
   
     res.redirect("back");
   };
+
+  // [GET] /admin/accounts/detail/:id
+module.exports.detail = async (req, res) => {
+  try {
+    const find = {
+      deleted: false,
+      _id: req.params.id
+    };    
+
+    const user = await Account.findOne(find);
+
+    const role = await Role.findOne({
+      _id: user.role_id,
+      deleted: false
+    });
+
+    user.role = role;
+
+    res.render("admin/pages/accounts/detail", {
+      pageTitle: user.fullName,
+      user: user
+    });
+  } catch (error) {
+    res.redirect(`${systemConfig.prefixAdmin}/accounts`);
+  }
+};

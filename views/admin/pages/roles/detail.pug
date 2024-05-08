@@ -1,4 +1,4 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 
 block main
   if (product.title)
@@ -7,9 +7,7 @@ block main
   if (product.description)
     div(class="mb-4") Mô tả ngắn: <b>#{product.description}</b>
 
-  a(
-    href=`${prefixAdmin}/roles/edit/${product.id}`
-    class="btn btn-warning"
-  ) Chỉnh sửa
+  a(href=`${prefixAdmin}/products-category` class="btn btn-primary mr-2") Xác nhận
+  a(href=`${prefixAdmin}/roles/edit/${product.id}` class="btn btn-warning") Chỉnh sửa
 
   script(src="/admin/js/role.js")

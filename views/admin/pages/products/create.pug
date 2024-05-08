@@ -1,43 +1,58 @@
 extends ../../layouts/default.pug
 include ../../mixins/alert.pug
+include ../../mixins/select-tree.pug
 
 block main 
-    +alert-error("5000")
-    +alert-success("5000")
+    if(role.permissions.includes("products_create"))
+        +alert-error("5000")
+        +alert-success("5000")
 
-    h1(class="mb-4") Them moi san pham 
+        h1(class="mb-4") Thêm mới sản phẩm
 
-    form(action=`${prefixAdmin}/products/create` id="form-create-product" method="POST" enctype="multipart/form-data") 
+        form(action=`${prefixAdmin}/products/create` id="form-create-product" method="POST" enctype="multipart/form-data") 
 
-        div(class="form-group")
-            label(for="title") Tieu de 
-            input(type="text" class="form-control" id="title" name="title" required)  
-        div(class="form-group")
-            label(for="desc") Mo ta
-            textarea(class="form-control" id="desc" name="description" rows="5")  
-        div(class="form-group")
-            label(for="price") Gia 
-            input(type="number" class="form-control" id="price" name="price" value="0" min="0")
-        div(class="form-group")
-            label(for="discount") % Giam Gia
-            input(type="number" class="form-control" id="discount" name="discountPercentage" value="0" min="0")
-        div(class="form-group")
-            label(for="stock") So luong
-            input(type="number" class="form-control" id="stock" name="stock" value="0" min="0") 
-        div(class="form-group" upload-image)
-            label(for="thumbnail") Anh <span upload-image-delete class="d-none">X</span>
-            input(type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" upload-image-input) 
-            img( src="" upload-image-preview class="image-preview")
-        div(class="form-group")
-            label(for="position") Vi tri
-            input(type="number" class="form-control" id="position" name="position" placeholder="Tu dong tang" min="1") 
-        div(class="form-group form-check form-check-inline")
-            input(type="radio" class="form-check-input" id="statusActive" name="status" value="active" checked)
-            label(for="statusActive" class="form-check-label") Hoat dong
-        div(class="form-group form-check form-check-inline")
-            input(type="radio" class="form-check-input" id="statusInactive" name="status" value="inactive")
-            label(for="statusInactive" class="form-check-label") Dung hoat dong
-        div(class="form-group")
-            button(type="submit" class="btn btn-primary") Tao moi
+            div(class="form-group")
+                label(for="title") Tiêu đề 
+                input(type="text" class="form-control" id="title" name="title" required) 
+            div(class="form-group")
+                label(for="product_category_id") Danh mục
+                select(
+                name="product_category_id"
+                id="product_category_id"
+                class="form-control"
+                )
+                    option(value="") -- Chọn danh mục --
+                    if(category)
+                        +select-tree(category) 
+            div(class="form-group")
+                label(for="desc") Mô tả
+                textarea(class="form-control textarea-mce" id="desc" name="description" rows="5") 
+            div(class="form-group")
+                label(for="price") Giá
+                input(type="number" class="form-control" id="price" name="price" value="0" min="0")
+            div(class="form-group")
+                label(for="discount") % Giảm giá
+                input(type="number" class="form-control" id="discount" name="discountPercentage" value="0" min="0")
+            div(class="form-group")
+                label(for="stock") Số lượng
+                input(type="number" class="form-control" id="stock" name="stock" value="0" min="0") 
+            div(class="form-group" upload-image)
+                label(for="thumbnail") Ảnh <span upload-image-delete class="d-none">X</span>
+                input(type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" upload-image-input) 
+                img( src="" upload-image-preview class="image-preview")
+            div(class="form-group")
+                label(for="position") Vị trí
+                input(type="number" class="form-control" id="position" name="position" placeholder="Tu dong tang" min="1") 
+            div(class="form-group form-check form-check-inline")
+                input(type="radio" class="form-check-input" id="statusActive" name="status" value="active" checked)
+                label(for="statusActive" class="form-check-label") Hoạt động
+            div(class="form-group form-check form-check-inline")
+                input(type="radio" class="form-check-input" id="statusInactive" name="status" value="inactive")
+                label(for="statusInactive" class="form-check-label") Dừng hoạt động
+            div(class="form-group")
+                button(type="submit" class="btn btn-success") Tạo mới
+                a(href=`${prefixAdmin}/products` class="btn btn-primary ml-2") Trở về
 
-    script(src="/admin/js/product.js")
+        script(src="/admin/js/product.js")
+    else 
+        h1 Bạn không có quyền truy cập 

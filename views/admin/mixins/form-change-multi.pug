@@ -2,7 +2,7 @@ mixin form-change-multi(path)
     form(action=path method="POST" form-change-multi)
         .d-flex.align-items-start
             .form-group
-                select(name="type" class="form-contorl")
+                select(name="type" class="form-contorl p-1")
                     option(disabled selected) -- Chọn hành động --
                     option(value="active") Hoạt động
                     option(value="inactive") Dừng hoạt động
@@ -10,4 +10,4 @@ mixin form-change-multi(path)
                     option(value="change-position") Thay đổi vị trí
             .form-group
                 input(type="text" name="ids" value="" class="form-control d-none")
-            button(type="submit" class="btn btn-primary") Áp dụng
+            button(type="submit" class="btn btn-primary" style="height: 35px") Áp dụng

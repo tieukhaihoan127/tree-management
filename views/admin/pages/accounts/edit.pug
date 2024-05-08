@@ -1,8 +1,8 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 include ../../mixins/alert.pug
 
 block main
-  if(role.permissions.includes("accounts_edit"))
+
     h1(class="mb-4") Cập nhật tài khoản
 
     +alert-success(5000)
@@ -106,4 +106,5 @@ block main
     else
       p Vui lòng tạo nhóm quyền trước khi cập nhật tài khoản
       p
-        a(href=`/${prefixAdmin}/roles/create` class="btn btn-secondary") Tạo nhóm quyền
+        a(href=`/${prefixAdmin}/roles/create` class="btn btn-success") Tạo nhóm quyền
+        a(href=`${prefixAdmin}/roles` class="btn btn-primary ml-2") Trở về

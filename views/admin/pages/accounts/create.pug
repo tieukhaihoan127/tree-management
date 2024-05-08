@@ -1,8 +1,8 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 include ../../mixins/alert.pug
 
 block main
-  if(role.permissions.includes("products-category_edit"))
+
     h1(class="mb-4") Thêm mới tài khoản
 
     +alert-error(5000)
@@ -91,7 +91,5 @@ block main
         )
         label(for="statusInActive" class="form-check-label") Dừng hoạt động
       div(class="form-group")
-        button(
-          type="submit"
-          class="btn btn-primary"
-        ) Tạo mới
+        button(type="submit" class="btn btn-success") Tạo mới 
+        a(href=`${prefixAdmin}/roles` class="btn btn-primary ml-2") Trở về

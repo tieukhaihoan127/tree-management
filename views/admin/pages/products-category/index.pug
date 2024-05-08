@@ -1,69 +1,110 @@
-extends ../../layout/default.pug
+extends ../../layouts/default.pug
 include ../../mixins/filter-status.pug
 include ../../mixins/search.pug
-include ../../mixins/alert.pug
-include ../../mixins/sort-category.pug
-include ../../mixins/form-change-multi.pug
 include ../../mixins/pagination.pug
+include ../../mixins/form-change-multi.pug
+include ../../mixins/sort.pug
+include ../../mixins/alert.pug
 include ../../mixins/table-tree.pug
 
 block main
     if(role.permissions.includes("products-category_view"))
+        +alert-success("5000")
 
-        +alert-success(5000)
 
-        h1 Danh sách sản phẩm
+        h1 Danh mục sản phẩm
 
-        .card.mb-3
-            .card-header Bộ lọc và Tìm kiếm
-            .card-body
-                .row
+        .card.mb-3 
+            .card-header Bộ lọc và tìm kiếm
+            .card-body 
+                .row 
                     .col-6
                         +filter-status(filterStatus)
-                    .col-6
+                    .col-6 
                         +search(keyword)
-
-        .card.mb-3
-            .card-header Sắp xếp
-            .card-body
-                .row
+        
+        .card.mb-3 
+            .card-header Sắp xếp 
+            .card-body 
+                .row 
                     .col-4
-                        +sort-category()
-
-        .card.mb-3
+                        +sort()
+        
+        .card.mb-3 
             .card-header Danh sách
-                .card-body
-                    .row
-                        .col-8
+                .card-body 
+                    .row 
+                        .col-8 
                             +form-change-multi(`${prefixAdmin}/products-category/change-multi?_method=PATCH`)
-                        .col-4
-                            a(
-                            href=`${prefixAdmin}/products-category/create`
-                            class="btn btn-outline-success"
-                            ) + Thêm mới
+                        .col-4 
+                            if(role.permissions.includes("products-category_create"))
+                                .text-right
+                                    a(href=`${prefixAdmin}/products-category/create` class="btn btn-outline-success" ) + Thêm mới
 
-                    table(
-                    class="table table-hover table-sm"
-                    checkbox-multi
-                    )
-                        thead
-                            tr
-                                th
-                                    input(type="checkbox" name="checkall")
-                                th STT
-                                th Hình ảnh
-                                th Tiêu đề
-                                th Vị trí
-                                th Trạng thái
-                                th Hành động
-
-                        tbody
-                            +table-tree(records)
-
+        table(class="table table-hover table-sm product" checkbox-multi)
+            thead 
+                tr 
+                    th 
+                        input(type="checkbox" name="checkall")
+                    th STT 
+                    th Hình ảnh
+                    th Tiêu đề
+                    th Vị trí
+                    th Trạng thái
+                    th Hành động
+            tbody 
+                each item, index in records
+                    tr
+                        td
+                            input(
+                            type="checkbox"
+                            name="id"
+                            value=item.id
+                            )
+                        td #{pagination.limitItems*(pagination.currentPage-1) + (index+1)}
+                        td
+                            img(
+                            src=item.thumbnail
+                            alt=item.title
+                            width="100px"
+                            height="auto"
+                            )
+                        td #{prefix}#{item.title}
+                        td
+                            input(
+                            type="number"
+                            value=item.position
+                            style="width: 60px"
+                            min="1"
+                            name="position"
+                            )
+                        td
+                            if(item.status == "active")
+                                a(
+                                href="javascript:;"
+                                data-status=item.status
+                                data-id=item.id
+                                button-change-status
+                                class="badge badge-success"
+                                ) Hoạt động
+                            else
+                                a(
+                                href="javascript:;"
+                                data-status=item.status
+                                data-id=item.id
+                                button-change-status
+                                class="badge badge-danger"
+                                ) Dừng hoạt động
+                        td
+                            a(href=`${prefixAdmin}/products-category/detail/${item.id}` class="btn btn-secondary btn-sm mr-1") Chi tiết
+                            if(role.permissions.includes("products-category_edit"))
+                                a(href=`${prefixAdmin}/products-category/edit/${item.id}` class="btn btn-warning btn-sm") Sửa
+                            if(role.permissions.includes("products-category_delete"))
+                                button(class="btn btn-danger btn-sm ml-1" button-delete data-id=item.id) Xóa
         +pagination(pagination)
 
         form(action="" method="POST" id="form-change-status" data-path=`${prefixAdmin}/products-category/change-status`)
+        form(action="" method="POST" id="form-delete-item" data-path=`${prefixAdmin}/products-category/delete`) 
 
-        form(action="" method="POST" id="form-delete-item" data-path=`${prefixAdmin}/products-category/delete`)
+        script(src="/admin/js/product.js" type="text/javascript")
 
-        script(src="/admin/js/product-category.js") 
